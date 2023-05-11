@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+
+  test_es:
+    image: elastic/elasticsearch:8.5.3
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    cap_add:
+      - IPC_LOCK
+    expose:
+      - "9200"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://test_es:9200/_cluster/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  test_redis:
+    image: redis:6.2-alpine
+
+  test_fast_api:
+    build: ../../src/
+    image: fastapi-image
+    env_file:
+      - ./.env.docker
+    depends_on:
+      test_es:
+        condition: service_healthy
+    expose:
+      - "8081"
+
+  tests:
+    build: .
+    env_file:
+      - ./.env.docker
+    depends_on:
+      - test_fast_api
+
+

@@ -1,0 +1,77 @@
+version: "3.9"
+
+services:
+
+  es:
+    image: elastic/elasticsearch:8.5.3
+    container_name: es
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    cap_add:
+      - IPC_LOCK
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://es:9200/_cluster/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: on-failure
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    expose:
+      - "9200"
+    networks:
+      - es_external_network
+
+  redis:
+    image: redis:6.2-alpine
+    container_name: redis
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: on-failure
+    networks:
+      - es_external_network
+
+  fast_api:
+    build: src/
+    container_name: fast_api
+    env_file:
+      - ../.env
+    depends_on:
+      - es
+      - redis
+    networks:
+      - es_external_network
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: unless-stopped
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    depends_on:
+      - fast_api
+    ports:
+      - "81:81"
+      - "443:443"
+    networks:
+      - es_external_network
+
+volumes:
+  elasticsearch-data:
+    driver: local
+
+networks:
+  es_external_network:
+    external: true

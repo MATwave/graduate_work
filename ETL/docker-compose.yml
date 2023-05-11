@@ -1,0 +1,29 @@
+version: "3.7"
+
+services:
+
+  etl:
+    build: etl/.
+    container_name: etl
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://es:9200/_cluster/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - etl_state:/state/
+    env_file:
+      - ../.env
+    networks:
+      - psql_external_network
+      - es_external_network
+
+volumes:
+  postgres_data:
+  etl_state:
+
+networks:
+  psql_external_network:
+    external: true
+  es_external_network:
+    external: true

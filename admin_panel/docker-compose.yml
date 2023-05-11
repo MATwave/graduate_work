@@ -1,0 +1,60 @@
+version: '3.9'
+services:
+
+  service:
+    container_name: admin_panel
+    build: app
+    expose:
+      - "8000"
+    healthcheck:
+      test: [ "CMD", "curl", "--fail", "http://service:8000/admin/" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    volumes:
+      - static_volume:/opt/app/static
+      - media_volume:/opt/app/media
+    env_file:
+      - ../.env
+    depends_on:
+      - psql
+    networks:
+      - psql_external_network
+
+  psql:
+    # Образ и версия базы, которую мы будем использовать
+    image: postgres:alpine
+    # Внешний том(volume) и место где он будет подключен внутри контейнера
+    volumes:
+      - ./psql/create_schema.sql:/docker-entrypoint-initdb.d/create_schema.sql
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - ../.env
+    networks:
+      - psql_external_network
+    ports:
+      - 5432:5432
+
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/configs:/etc/nginx/conf.d:ro
+      - static_volume:/opt/app/static
+      - media_volume:/opt/app/media
+    ports:
+      - "80:80"
+    depends_on:
+      service:
+        condition: service_healthy
+    networks:
+      - psql_external_network
+
+volumes:
+  static_volume:
+  media_volume:
+  postgres_data:
+
+networks:
+  psql_external_network:
+    external: true

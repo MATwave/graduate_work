@@ -6,6 +6,7 @@ services:
     image: elastic/elasticsearch:8.5.3
     container_name: es
     environment:
+      - cluster.name=dev-cluster
       - xpack.security.enabled=false
       - discovery.type=single-node
     ulimits:

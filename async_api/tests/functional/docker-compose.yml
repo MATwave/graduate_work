@@ -5,6 +5,7 @@ services:
   test_es:
     image: elastic/elasticsearch:8.5.3
     environment:
+      - cluster.name=test-cluster
       - xpack.security.enabled=false
       - discovery.type=single-node
     ulimits:

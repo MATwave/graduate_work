@@ -46,7 +46,7 @@ class FilmQueryParams:
             description="Часть названия фильма (Пример: dark sta )",
         ),
         size: int = Query(
-            default=10,
+            default=3,
             title="Количество фильмов",
             description="Количество фильмов на странице",
             gt=0,
@@ -77,7 +77,7 @@ class FilmFilterParams:
     def __init__(
         self,
         size: int = Query(
-            default=10,
+            default=3,
             title="Количество фильмов",
             description="Количество фильмов на странице",
             gt=0,

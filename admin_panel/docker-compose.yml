@@ -43,7 +43,7 @@ services:
       - static_volume:/opt/app/static
       - media_volume:/opt/app/media
     ports:
-      - "80:80"
+      - "8001:80"
     depends_on:
       service:
         condition: service_healthy

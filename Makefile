@@ -9,7 +9,7 @@ admin_panel_up:
 
 	# Запуск контейнеров Docker в фоновом режиме и перестройка образов, если необходимо
 	@echo "Starting containers..."
-	docker compose $(ADMIN_PANEL_DOCKER_COMPOSE_FILE) up -d --build || \
+	docker-compose $(ADMIN_PANEL_DOCKER_COMPOSE_FILE) up -d --build || \
 		(echo "Failed to start containers" && exit 1)
 	# Ожидание, пока контейнер admin_panel станет здоровым
 	@echo "Waiting for admin_panel container to become healthy..."
@@ -36,7 +36,7 @@ admin_panel_up:
 # Остановка и удаление контейнеров Docker
 admin_panel_down:
 	@echo "Stopping and removing containers..."
-	docker compose $(ADMIN_PANEL_DOCKER_COMPOSE_FILE) down -v
+	docker-compose $(ADMIN_PANEL_DOCKER_COMPOSE_FILE) down -v
 
 # Заполнение базы данных из файла SQLite
 admin_panel_fill_db:
@@ -54,21 +54,21 @@ async_api_up:
 	@echo "Copying .env.template to .env"
 	cp .env.template .env
 	@echo "Starting async_api containers"
-	docker compose -f $(ASYNC_API_COMPOSE_FILE) up -d --build
+	docker-compose -f $(ASYNC_API_COMPOSE_FILE) up -d --build
 
 async_api_down:
 	@echo "Stopping async_api containers"
-	docker compose -f $(ASYNC_API_COMPOSE_FILE) down -v
+	docker-compose -f $(ASYNC_API_COMPOSE_FILE) down -v
 
 async_api_test_up:
 	@echo "Starting async_api test containers"
-	docker compose -f $(ASYNC_API_TEST_COMPOSE_FILE) up -d --build
+	docker-compose -f $(ASYNC_API_TEST_COMPOSE_FILE) up -d --build
 	@echo "Displaying test logs"
-	docker compose -f $(ASYNC_API_TEST_COMPOSE_FILE) logs -f --tail=0 tests
+	docker-compose -f $(ASYNC_API_TEST_COMPOSE_FILE) logs -f --tail=0 tests
 
 async_api_test_down:
 	@echo "Stopping async_api test containers"
-	docker compose -f $(ASYNC_API_TEST_COMPOSE_FILE) down -v
+	docker-compose -f $(ASYNC_API_TEST_COMPOSE_FILE) down -v
 
 #-----------------------------
 
@@ -79,11 +79,11 @@ etl_up:
 	if [ -z "$$(docker network ls -q -f name=psql_external_network)" ]; then docker network create psql_external_network; fi
 	if [ -z "$$(docker network ls -q -f name=es_external_network)" ]; then docker network create es_external_network; fi
 	@echo "Starting etl containers"
-	docker compose -f $(ETL_COMPOSE_FILE) up -d --build
+	docker-compose -f $(ETL_COMPOSE_FILE) up -d --build
 
 etl_down:
 	@echo "Stopping etl containers"
-	docker compose -f $(ETL_COMPOSE_FILE) down -v
+	docker-compose -f $(ETL_COMPOSE_FILE) down -v
 
 #-------------------------------
 

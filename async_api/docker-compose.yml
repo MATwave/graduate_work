@@ -24,6 +24,8 @@ services:
       timeout: 10s
       retries: 5
     restart: on-failure
+    ports:
+      - "9200:9200"
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
     expose:
@@ -64,8 +66,7 @@ services:
     depends_on:
       - fast_api
     ports:
-      - "81:81"
-      - "443:443"
+      - "8002:81"
     networks:
       - es_external_network
 

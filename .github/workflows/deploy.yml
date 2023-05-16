@@ -1,23 +1,33 @@
 name: Deploy
 
 on:
+  push:
+    branches: [ "main" ]
   pull_request:
-    branches:
-      - main
+    branches: [ "main" ]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: SSH Setup
-        uses: webfactory/ssh-agent@v0.5.1
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan 158.160.52.58 >> ~/.ssh/known_hosts
 
       - name: Deploy to Server
         run: |
-          ssh practicum@158.160.52.58 "cd /home/practicum/graduate_work/ &&
-          git pull &&
-          make all_down &&
-          make all_up"
+          echo "Connecting to the remote server..."
+          ssh -i ~/.ssh/id_rsa practicum@158.160.52.58 "cd /home/practicum/graduate_work/ &&
+          echo 'Pulling the latest changes from the repository...' &&
+          sudo git pull &&
+          echo 'Running make all_down...' &&
+          sudo make all_down &&
+          echo 'Running make all_up...' &&
+          sudo make all_up"

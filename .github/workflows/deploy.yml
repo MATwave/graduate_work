@@ -23,8 +23,11 @@ jobs:
 
       - name: Deploy to Server
         run: |
+          echo "Connecting to the remote server..."
           ssh -i ~/.ssh/id_rsa practicum@158.160.52.58 "cd /home/practicum/graduate_work/ &&
-          git config --global --add safe.directory /home/practicum/graduate_work &&
+          echo 'Pulling the latest changes from the repository...'
           git pull &&
+          echo 'Running make all_down...'
           make all_down &&
+          echo 'Running make all_up...' 
           make all_up"

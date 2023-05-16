@@ -11,15 +11,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
-
-      - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan 158.160.52.58 >> ~/.ssh/known_hosts
+      - name: SSH Setup
+        uses: webfactory/ssh-agent@v0.5.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Deploy to Server
         run: |

@@ -26,6 +26,8 @@ ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', "127.0.0.1").split(' ')
 if DEBUG:
     import socket
 
+    CSRF_TRUSTED_ORIGINS = ['http://localhost:8001']
+
     INTERNAL_IPS = ['127.0.0.1', '::1', 'localhost']
 
     # get ip address for docker host

@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from services.genre import GenreService, get_genre_service
 
 from .dependencies import GENRE_DETAILS_MESSAGE, CommonQueryParams
-from .serializers import APIGenre
+from .serializers.movies_serializers import APIGenre
 
 router = APIRouter()
 

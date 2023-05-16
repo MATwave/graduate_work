@@ -10,12 +10,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
       - name: SSH Setup
         uses: webfactory/ssh-agent@v0.5.1
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Deploy to Server
+        if: github.event.pull_request.merged
         run: |
           ssh practicum@158.160.52.58 "cd /home/practicum/graduate_work/ &&
           git pull &&

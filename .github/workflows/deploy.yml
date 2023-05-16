@@ -28,6 +28,6 @@ jobs:
           echo 'Pulling the latest changes from the repository...' &&
           sudo git pull &&
           echo 'Running make all_down...' &&
-          make all_down &&
+          sudo make all_down &&
           echo 'Running make all_up...' &&
-          make all_up"
+          sudo make all_up"

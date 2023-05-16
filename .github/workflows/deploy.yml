@@ -23,4 +23,7 @@ jobs:
 
       - name: Deploy to Server
         run: |
-          ssh -i ~/.ssh/id_rsa practicum@158.160.52.58
+          ssh -i ~/.ssh/id_rsa practicum@158.160.52.58 "cd /home/practicum/graduate_work/ &&
+          git pull &&
+          make all_down &&
+          make all_up"

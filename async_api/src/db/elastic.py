@@ -48,6 +48,12 @@ class ElasticBase(BaseDB):
             logger.error(e)
         else:
             obj_list = [model(**_doc["_source"]) for _doc in doc["hits"]["hits"]]
+            if len(obj_list) == 0:
+
+                doc = await self.elastic.search(index=index,
+                                                body={'query': {'match': {'title': query_body['query']['value']}},
+                                                      'size': query_body['page']['size']})
+                obj_list = [model(**_doc["_source"]) for _doc in doc["hits"]["hits"]]
         return obj_list
 
 

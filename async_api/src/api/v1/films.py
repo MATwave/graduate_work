@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from services.film import FilmService, get_film_service
 
 from .dependencies import FILM_DETAILS_MESSAGE, NON_SUB_MESSAGE, FilmFilterParams, FilmQueryParams
-from .serializers import APIFilm, APIFilmFull
+from .serializers.movies_serializers import APIFilm, APIFilmFull
 
 router = APIRouter()
 
@@ -14,7 +14,7 @@ router = APIRouter()
 async def film_search(commons: FilmQueryParams = Depends(FilmQueryParams),
                       film_service: FilmService = Depends(get_film_service),) -> list[APIFilm]:
     """
-    полнотекстовый поиск по фильмам
+    Полнотекстовый поиск по фильмам
     """
     page = {"size": commons.size, "number": commons.number}
     query = {"field": "title", "value": commons.query}
@@ -30,7 +30,7 @@ async def film_details(
     film_id: UUID, film_service: FilmService = Depends(get_film_service)
 ) -> APIFilmFull:
     """
-    полная информация по фильму по его UUID
+    Полная информация по фильму по его UUID
     """
     film = await film_service.get(film_id)
     if not film:  # Если фильм не найден, отдаём 404 статус
@@ -43,7 +43,7 @@ async def film_details(
 async def film_list(commons: FilmFilterParams = Depends(FilmFilterParams),
                     film_service: FilmService = Depends(get_film_service)) -> list[APIFilm]:
     """
-    вывод списка фильмов с возможностью фильтрации по жанру
+    Вывод списка фильмов с возможностью фильтрации по жанру
     """
     page = {"size": commons.size, "number": commons.number}
     filter_parameter = {"field": "genre", "value": commons.genre}

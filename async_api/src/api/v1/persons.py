@@ -6,7 +6,7 @@ from services.film import FilmService, get_film_service
 from services.person import PersonService, get_person_service
 
 from .dependencies import NON_SUB_MESSAGE, PERSON_DETAILS_MESSAGE, CommonQueryParams
-from .serializers import APIPerson, APIPersonFilms
+from .serializers.movies_serializers import APIPerson, APIPersonFilms
 
 router = APIRouter()
 

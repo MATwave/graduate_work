@@ -43,7 +43,6 @@ class PersonTransformer:
             else:
                 grouped_roles[role['role']].append(role['film_id'])
         roles = [Films(role=key, film_ids=value) for key, value in grouped_roles.items()]
-        print(roles)
         return {
             'id': person[0],
             'name': person[1],

@@ -26,13 +26,13 @@ async def create_item(request: dict):
         response.set_text('Опасные вещи говорите!')
         return response.dumps()
 
-    elif alice_request.request.command == 'посоветуй фильм':
+    elif 'get_film' in  alice_request.request.nlu.intents:
         films = await film_list(int(page_number) if page_number is not None else 1)
         await redis.redis.setex(session_id, settings.cache_expires, str(int(page_number) + 1) if page_number else "2")
         response.set_text(films)
         return response.dumps()
 
-    elif alice_request.request.command == 'еще':
+    elif 'next' in alice_request.request.nlu.intents:
         if page_number:
             films = await film_list(int(page_number))
             await redis.redis.setex(session_id, settings.cache_expires, str(int(page_number) + 1))
@@ -40,6 +40,10 @@ async def create_item(request: dict):
             return response.dumps()
 
         response.set_text('Нет доступных фильмов.')
+        return response.dumps()
+    elif 'about_film' in alice_request.request.nlu.intents:
+        description = await get_film_description(alice_request.request.nlu.intents['about_film'])
+        response.set_text(description)
         return response.dumps()
     else:
         response.set_text('Не понимаю вашей команды!')
@@ -77,6 +81,39 @@ async def film_list(page_number):
 
             if len(film_list) == 0:
                 response_text = 'Фильмы в моем списке кончились.'
+
+        return response_text
+
+    except requests.exceptions.RequestException as e:
+        return 'Ошибка при получении данных о фильмах.'
+
+async def get_film_description(slots):
+    film = slots.get('slots', {}).get('Film', {}).get('value')
+    base_url = settings.base_url + 'search'
+    params = {
+        "page[size]": 1,
+        "page[number]": 1,
+        "query": film
+    }
+    query_string = urlencode(params)
+    endpoint = urljoin(base_url, f"?{query_string}")
+    try:
+        with requests.get(endpoint) as response:
+            response.raise_for_status()
+            films = response.json()
+
+            response_text = f'Подробнее о фильме "{film}": '
+            if len(films) == 0:
+                response_text = f'Не нашла у себя фильм "{film}".'
+
+            elif len(films) == 1:
+                uuid = films[0]['id']
+                endpoint = urljoin(base_url, f"{uuid}")
+                print(endpoint)
+                with requests.get(endpoint) as response:
+                    response.raise_for_status()
+                    description = response.json()['description']
+                    response_text += description
 
         return response_text
 

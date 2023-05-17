@@ -1,5 +1,5 @@
 # Проектная работа: Голосовой Ассистент
-
+[![Deploy](https://github.com/MATwave/graduate_work/actions/workflows/deploy.yml/badge.svg)](https://github.com/MATwave/graduate_work/actions/workflows/deploy.yml)
 > [Ссылка на проект](https://github.com/MATwave/graduate_work)
 
 __Цели проекта__ - интеграция между сервисом поиска фильмов и голосовым помощником. Функционал упростит и ускорит

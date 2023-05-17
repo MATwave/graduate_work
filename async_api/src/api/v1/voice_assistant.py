@@ -18,14 +18,15 @@ async def create_item(request: dict):
     page_number = await redis.redis.get(session_id)
 
     if alice_request.session.new:
-        response.set_text('Салам попалам!')
+        response.set_text('Это навык Фильмо Вед - голосовой ассистент для кинотеатра! Вот что я умею:\n'
+                          'Скажи "Посоветуй фильм", если захочешь другой - скажи "ещё"')
         return response.dumps()
 
     elif alice_request.request.markup.dangerous_context:
         response.set_text('Опасные вещи говорите!')
         return response.dumps()
 
-    elif alice_request.request.command == 'покажи мне фильмы':
+    elif alice_request.request.command == 'посоветуй фильм':
         films = await film_list(int(page_number) if page_number is not None else 1)
         await redis.redis.setex(session_id, settings.cache_expires, str(int(page_number) + 1) if page_number else "2")
         response.set_text(films)
@@ -48,7 +49,7 @@ async def create_item(request: dict):
 async def film_list(page_number):
     base_url = settings.base_url
     params = {
-        "page[size]": 3,
+        "page[size]": 1,
         "page[number]": page_number
     }
     query_string = urlencode(params)
@@ -68,11 +69,11 @@ async def film_list(page_number):
                 for film in films
             ]
 
-            response_text = 'Список фильмов: '
+            response_text = 'Советую фильм: '
             for film in film_list:
-                response_text += f"Название: {film['title']}, "
+                response_text += f"{film['title']}, "
                 response_text += f"Рейтинг IMDB: {film['imdb_rating']}, "
-                response_text += f"Жанры: {', '.join(film['genre'])}, "
+                response_text += f"Жанр: {', '.join(film['genre'])}, "
 
             if len(film_list) == 0:
                 response_text = 'Фильмы в моем списке кончились.'

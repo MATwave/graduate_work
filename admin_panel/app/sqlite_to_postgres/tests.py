@@ -67,14 +67,14 @@ def test_contents():
             sqlite_field_names_str = ','.join(sqlite_renamed_fields)
 
             curs = sqlite_conn.cursor()
-            sqlite_person_data = curs.execute(f"SELECT {sqlite_field_names_str} FROM {table}").fetchall()
+            sqlite_person_data = curs.execute(f"SELECT {sqlite_field_names_str} FROM {table} order by id").fetchall()
 
             psql_renamed_fields = [psql_rename_dict[field] if field in psql_rename_dict else field for field in
                                    field_names]
             psql_field_names_str = ','.join(psql_renamed_fields)
 
             cursor = pg_conn.cursor()
-            cursor.execute(f"SELECT {psql_field_names_str} FROM content.{table}")
+            cursor.execute(f"SELECT {psql_field_names_str} FROM content.{table} order by id")
             postgre_person_data = cursor.fetchall()
 
             for i in range(len(postgre_person_data)):

@@ -1,0 +1,38 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan 158.160.52.58 >> ~/.ssh/known_hosts
+
+      - name: Deploy to Server
+        run: |
+          echo "Connecting to the remote server..."
+          ssh -i ~/.ssh/id_rsa practicum@158.160.52.58 "cd /home/practicum/graduate_work/ &&
+          echo 'Pulling the latest changes from the repository...' &&
+          sudo git pull &&
+          echo 'Running make all_down...' &&
+          sudo make all_down &&
+          echo 'Running make all_up...' &&
+          sudo make all_up"
+          
+      - name: Send Telegram notification
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          message: "Пс, ${{ github.actor }}! Все удачно задеплоилось! ${{ github.event.head_commit.message }}!"

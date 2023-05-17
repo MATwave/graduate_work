@@ -19,17 +19,17 @@ admin_panel_up:
 
 	# Выполнение миграций базы данных внутри контейнера
 	@echo "Running migrations..."
-	docker exec -it admin_panel bash -c "python manage.py migrate" || \
+	docker exec -i admin_panel bash -c "python manage.py migrate" || \
 		(echo "Failed to run migrations" && exit 1)
 
 	# Сбор статических файлов
 	@echo "Collecting static files..."
-	docker exec -it admin_panel bash -c "python manage.py collectstatic" || \
+	docker exec -i admin_panel bash -c "python manage.py collectstatic" || \
 		(echo "Failed to collect static files" && exit 1)
 
 	# Создание суперпользователя
 	@echo "Creating superuser..."
-	docker exec -it admin_panel python  manage.py shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('admin', 'admin@example.com', 'admin')"  && \
+	docker exec -i admin_panel python  manage.py shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('admin', 'admin@example.com', 'admin')"  && \
     echo "Superuser created successfully." || \
     (echo "Failed to create superuser" && exit 1)
 
@@ -41,12 +41,12 @@ admin_panel_down:
 # Заполнение базы данных из файла SQLite
 admin_panel_fill_db:
 	@echo "Loading data into Postgres from SQLite file..."
-	docker exec -it admin_panel bash -c "cd sqlite_to_postgres && python load_data.py && python tests.py" && \
+	docker exec -i admin_panel bash -c "cd sqlite_to_postgres && python load_data.py && python tests.py" && \
 	echo "The data has been successfully migrated."
 
 admin_panel_test_fill:
 	@echo "Testing data migration from SQLite to PostgreSQL"
-	docker exec -it admin_panel bash -c "cd sqlite_to_postgres && python tests.py"
+	docker exec -i admin_panel bash -c "cd sqlite_to_postgres && python tests.py"
 
 #-----------------------------
 

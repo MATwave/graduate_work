@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Setup SSH
-        if: setup_ssh
+        id: setup_ssh
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
@@ -32,17 +32,32 @@ jobs:
           echo 'Running make all_up...' &&
           sudo make all_up"
 
-      - name: Send Telegram notification
+      - name: Send Telegram notification (Setup SSH Failure)
+        if: ${{ steps.setup_ssh.outcome != 'success' }}
         uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           message: |
             Пс, ${{ github.actor }}!
-            ${{ if (steps.setup_ssh.outcome != 'success') }}
             Произошла ошибка на шаге Setup SSH! Коммит -> ${{ github.event.head_commit.message }}!
-            ${{ else if (steps.deploy.outcome == 'success') }}
+
+      - name: Send Telegram notification (Deployment Success)
+        if: ${{ steps.deploy.outcome == 'success' }}
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          message: |
+            Пс, ${{ github.actor }}!
             Все удачно задеплоилось! ${{ github.event.head_commit.message }}!
-            ${{ else }}
+
+      - name: Send Telegram notification (Deployment Failure)
+        if: ${{ steps.deploy.outcome != 'success' }}
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          message: |
+            Пс, ${{ github.actor }}!
             Все сломалось из-за ${{ github.event.head_commit.message }}!
-            ${{ endif }}

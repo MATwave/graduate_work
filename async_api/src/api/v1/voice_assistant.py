@@ -69,11 +69,11 @@ async def film_list(page_number):
                 for film in films
             ]
 
-            response_text = 'Список фильмов: '
+            response_text = 'Советую фильм: '
             for film in film_list:
-                response_text += f"Название: {film['title']}, "
+                response_text += f"{film['title']}, "
                 response_text += f"Рейтинг IMDB: {film['imdb_rating']}, "
-                response_text += f"Жанры: {', '.join(film['genre'])}, "
+                response_text += f"Жанр: {', '.join(film['genre'])}, "
 
             if len(film_list) == 0:
                 response_text = 'Фильмы в моем списке кончились.'

@@ -18,7 +18,7 @@ async def create_item(request: dict):
     page_number = await redis.redis.get(session_id)
 
     if alice_request.session.new:
-        response.set_text('Это навык Фильмо Вед - голосовой ассистент для кинотеатра! Вот что я умею:'
+        response.set_text('Это навык Фильмо Вед - голосовой ассистент для кинотеатра! Вот что я умею:\n'
                           'Скажи "Посоветуй фильм", если захочешь другой - скажи "ещё"')
         return response.dumps()
 

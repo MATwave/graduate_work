@@ -29,3 +29,10 @@ jobs:
           sudo make all_down &&
           echo 'Running make all_up...' &&
           sudo make all_up"
+          
+      - name: Send Telegram notification
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          message: "Successful deployment!"

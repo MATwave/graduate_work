@@ -19,17 +19,26 @@ async def create_item(request: dict):
 
     if alice_request.session.new:
         response.set_text('Это навык Фильмо Вед - голосовой ассистент для кинотеатра! Вот что я умею:\n'
-                          'Скажи "Посоветуй фильм", если захочешь другой - скажи "ещё"')
+                          'Скажи "Посоветуй фильм", если захочешь другой - скажи "ещё". '
+                          'Если захочешь узнать описание фильма - спроси "о чем <название фильма>"')
+        response.set_buttons('Выйти из навыка')
         return response.dumps()
 
     elif alice_request.request.markup.dangerous_context:
         response.set_text('Опасные вещи говорите!')
+        response.set_buttons('Выйти из навыка')
+        return response.dumps()
+
+    elif 'exit' in  alice_request.request.nlu.intents:
+        response.set_text('Пока-пока. Приходи еще!')
+        response.end()
         return response.dumps()
 
     elif 'get_film' in  alice_request.request.nlu.intents:
         films = await film_list(int(page_number) if page_number is not None else 1)
         await redis.redis.setex(session_id, settings.cache_expires, str(int(page_number) + 1) if page_number else "2")
         response.set_text(films)
+        response.set_buttons('Выйти из навыка')
         return response.dumps()
 
     elif 'next' in alice_request.request.nlu.intents:
@@ -37,6 +46,7 @@ async def create_item(request: dict):
             films = await film_list(int(page_number))
             await redis.redis.setex(session_id, settings.cache_expires, str(int(page_number) + 1))
             response.set_text(films)
+            response.set_buttons('Выйти из навыка')
             return response.dumps()
 
         response.set_text('Нет доступных фильмов.')
@@ -44,9 +54,11 @@ async def create_item(request: dict):
     elif 'about_film' in alice_request.request.nlu.intents:
         description = await get_film_description(alice_request.request.nlu.intents['about_film'])
         response.set_text(description)
+        response.set_buttons('Выйти из навыка')
         return response.dumps()
     else:
         response.set_text('Не понимаю вашей команды!')
+        response.set_buttons('Выйти из навыка')
         return response.dumps()
 
 

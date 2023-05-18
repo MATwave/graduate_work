@@ -19,7 +19,7 @@ class AliceResponse(object):
         self._response_dict['response']['text'] = text[:1024]
 
     def set_buttons(self, buttons):
-        self._response_dict['response']['buttons'] = buttons
+        self._response_dict['response']['buttons'] = [{'title':buttons, 'hide': True}]
 
     def end(self):
         self._response_dict["response"]["end_session"] = True

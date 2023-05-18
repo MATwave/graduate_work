@@ -118,10 +118,10 @@ async def get_film_description(intents: Intents) -> str:
             response.raise_for_status()
             films = response.json()
 
-            response_text = f'Подробнее о фильме "{film}": '
+            response_text = f'Подробнее о фильме по запросу "{film}": '
 
             if len(films) == 0:
-                response_text = f'Не нашла у себя фильм "{film}".'
+                response_text = f'Не нашла у себя фильм по запросу "{film}".'
             elif len(films) == 1:
                 uuid = films[0]['id']
                 endpoint = urljoin(base_url, f"{uuid}")
@@ -130,8 +130,10 @@ async def get_film_description(intents: Intents) -> str:
                     response.raise_for_status()
                     film_data = response.json()
 
+                    title = film_data.get('tittle')
                     description = film_data.get('description', 'Описание отсутствует')
-                    response_text += description
+
+                    response_text += f'Название: {title}, Описание: {description}'
 
         return response_text
 

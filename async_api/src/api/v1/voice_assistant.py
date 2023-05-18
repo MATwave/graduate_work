@@ -51,11 +51,13 @@ async def create_item(request: dict):
 
         response.set_text('Нет доступных фильмов.')
         return response.dumps()
+
     elif 'about_film' in alice_request.request.nlu.intents:
         description = await get_film_description(alice_request.request.nlu.intents['about_film'])
         response.set_text(description)
         response.set_buttons('Выйти из навыка')
         return response.dumps()
+
     else:
         response.set_text('Не понимаю вашей команды!')
         response.set_buttons('Выйти из навыка')

@@ -6,6 +6,7 @@ from urllib.parse import urljoin, urlencode
 
 from .deserializers.alice_deserializer import AliceRequest
 from .serializers.alice_serializers import AliceResponse, AliceResponseModel
+from .deserializers.alice_deserializer import Intents
 
 router = APIRouter()
 
@@ -101,8 +102,8 @@ async def film_list(page_number):
     except requests.exceptions.RequestException as e:
         return 'Ошибка при получении данных о фильмах.'
 
-async def get_film_description(slots):
-    film = slots.get('slots', {}).get('Film', {}).get('value')
+async def get_film_description(intents: Intents) -> str:
+    film = intents.slots['Film'].value
     base_url = settings.base_url + 'search'
     params = {
         "page[size]": 1,
@@ -111,25 +112,28 @@ async def get_film_description(slots):
     }
     query_string = urlencode(params)
     endpoint = urljoin(base_url, f"?{query_string}")
+
     try:
         with requests.get(endpoint) as response:
             response.raise_for_status()
             films = response.json()
 
             response_text = f'Подробнее о фильме "{film}": '
+
             if len(films) == 0:
                 response_text = f'Не нашла у себя фильм "{film}".'
-
             elif len(films) == 1:
                 uuid = films[0]['id']
                 endpoint = urljoin(base_url, f"{uuid}")
-                print(endpoint)
+
                 with requests.get(endpoint) as response:
                     response.raise_for_status()
-                    description = response.json()['description']
+                    film_data = response.json()
+
+                    description = film_data.get('description', 'Описание отсутствует')
                     response_text += description
 
         return response_text
 
-    except requests.exceptions.RequestException as e:
+    except requests.exceptions.RequestException:
         return 'Ошибка при получении данных о фильмах.'

@@ -7,6 +7,9 @@ class Meta(BaseModel):
     client_id: str
     interfaces: Dict[str, Any]
 
+class User(BaseModel):
+    user_id: str
+
 class Application(BaseModel):
     application_id: str
 
@@ -14,12 +17,18 @@ class Session(BaseModel):
     message_id: int
     session_id: str
     skill_id: str
+    user: User
     application: Application
     user_id: str
     new: bool
 
+class Slots(BaseModel):
+    type: str
+    tokens: Dict[str, int]
+    value: str
+
 class Intents(BaseModel):
-    slots: Dict[str, Any]
+    slots: Dict[str, Slots]
 
 class NLU(BaseModel):
     tokens: List[str]

@@ -45,13 +45,14 @@ async def create_item(request: dict):
         return response.dumps()
 
     elif 'next' in alice_request.request.nlu.intents:
-        get_film_state = alice_request.state.get('get_film')
+        get_film_state = alice_request.state['session'].get('get_film')
         if get_film_state:
             get_film_state['page_number'] += 1
             films = await film_list(page_size=get_film_state.get('page_size'),
                                     page_number=get_film_state.get('page_number'))
             #await redis.redis.setex(session_id, settings.cache_expires, str(int(page_number) + 1))
-            response.set_text(get_film_state)
+            response.set_text(films)
+            response.set_state(alice_request.state['session'])
             response.set_buttons('Выйти из навыка')
             return response.dumps()
 

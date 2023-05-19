@@ -5,6 +5,18 @@ GENRE_DETAILS_MESSAGE = "genres not found"
 PERSON_DETAILS_MESSAGE = "persons not found"
 NON_SUB_MESSAGE = "функция доступна только пользователям с ролью subscriber"
 
+# Для голосового помощника
+HELLO_TEXT = 'Это навык Фильмо Вед - голосовой ассистент для кинотеатра! Вот что я умею:\n'\
+             'Скажи "Посоветуй фильм", если захочешь другой - скажи "ещё". '\
+             'Если захочешь узнать описание фильма - спроси "о чем <название фильма>"'
+EXIT_TEXT = 'Выйти из навыка'
+MISUNDERSTAND_TEXT = 'Не понимаю вашей команды!'
+DANGEROUS_TEXT = 'Опасные вещи говорите!'
+PARTING_TEXT = 'Пока-пока. Приходи еще!'
+OUT_OF_CONTEXT_TEXT = 'Нет данных.'
+END_OF_FILM_LIST_TEXT = 'Фильмы в моем списке кончились.'
+GET_FILM_RESPONSE_ERROR_TEXT = 'Ошибка при получении данных о фильмах.'
+
 
 class CommonQueryParams:
     def __init__(

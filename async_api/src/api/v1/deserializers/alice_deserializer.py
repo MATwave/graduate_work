@@ -50,3 +50,4 @@ class AliceRequest(BaseModel):
     session: Session
     request: Request
     version: str
+    state: Dict[str, Any]

@@ -16,7 +16,7 @@ async def create_item(request: dict):
     alice_request = AliceRequest(**request)
     response = AliceResponse(alice_request.dict())
     session_id = alice_request.session.session_id
-    page_number = await redis.redis.get(session_id)
+    #page_number = await redis.redis.get(session_id)
 
     if alice_request.session.new:
         response.set_text('Это навык Фильмо Вед - голосовой ассистент для кинотеатра! Вот что я умею:\n'
@@ -36,17 +36,22 @@ async def create_item(request: dict):
         return response.dumps()
 
     elif 'get_film' in  alice_request.request.nlu.intents:
-        films = await film_list(int(page_number) if page_number is not None else 1)
-        await redis.redis.setex(session_id, settings.cache_expires, str(int(page_number) + 1) if page_number else "2")
+        films = await film_list(page_size=1,page_number=1)
+        #await redis.redis.setex(session_id, settings.cache_expires, str(int(page_number) + 1) if page_number else "2")
         response.set_text(films)
+        response.set_state({'get_film': {'page_size':1,
+                                         'page_number':1}})
         response.set_buttons('Выйти из навыка')
         return response.dumps()
 
     elif 'next' in alice_request.request.nlu.intents:
-        if page_number:
-            films = await film_list(int(page_number))
-            await redis.redis.setex(session_id, settings.cache_expires, str(int(page_number) + 1))
-            response.set_text(films)
+        get_film_state = alice_request.state.get('get_film')
+        if get_film_state:
+            films = await film_list(page_size=get_film_state.get('page_size'),
+                                    page_number=get_film_state.get('page_number'))
+            #await redis.redis.setex(session_id, settings.cache_expires, str(int(page_number) + 1))
+            get_film_state['page_number']+=1
+            response.set_text(get_film_state)
             response.set_buttons('Выйти из навыка')
             return response.dumps()
 
@@ -65,7 +70,7 @@ async def create_item(request: dict):
         return response.dumps()
 
 
-async def film_list(page_number):
+async def film_list(page_size,page_number):
     base_url = settings.base_url
     params = {
         "page[size]": 1,

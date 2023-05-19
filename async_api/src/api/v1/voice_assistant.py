@@ -39,7 +39,7 @@ async def create_item(request: dict):
         films = await film_list(page_size=1,page_number=1)
         #await redis.redis.setex(session_id, settings.cache_expires, str(int(page_number) + 1) if page_number else "2")
         response.set_text(films)
-        response.set_state({'get_film': {'page_size':1,
+        response.set_state(state_dict={'get_film': {'page_size':1,
                                          'page_number':1}})
         response.set_buttons('Выйти из навыка')
         return response.dumps()

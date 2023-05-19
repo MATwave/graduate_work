@@ -1,7 +1,6 @@
 from typing import Dict, List
 from pydantic import BaseModel
 
-#TODO: Можно объеденить с алисой если сделать некоторые параметры не объязательными
 
 class Meta(BaseModel):
     locale: str

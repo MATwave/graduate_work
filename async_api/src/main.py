@@ -1,5 +1,5 @@
 import aioredis
-from api.v1 import films, genres, persons, voice_assistant
+from api.v1 import films, genres, persons, alice_assistant
 from core.config import settings
 from db import elastic, redis
 from elasticsearch import AsyncElasticsearch
@@ -48,8 +48,8 @@ async def shutdown():
     await redis.redis.close()
     await elastic.es.close()
 
-
-app.include_router(voice_assistant.router, prefix="/api/v1/assistants", tags=["assistants"])
+app.include_router(alice_assistant.router, prefix="/api/v1/assistants", tags=["assistants"])
+#app.include_router(voice_assistant.router, prefix="/api/v1/assistants", tags=["assistants"])
 app.include_router(films.router, prefix="/api/v1/films", tags=["films"])
 app.include_router(persons.router, prefix="/api/v1/persons", tags=["persons"])
 app.include_router(genres.router, prefix="/api/v1/genres", tags=["genres"])

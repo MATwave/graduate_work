@@ -45,7 +45,7 @@ class Request(BaseModel):
     markup: Markup
     type: str
 
-class AliceRequest(BaseModel):
+class AliceRequestModel(BaseModel):
     meta: Meta
     session: Session
     request: Request

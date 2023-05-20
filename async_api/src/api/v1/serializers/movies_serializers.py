@@ -40,7 +40,7 @@ class APIFilm(BaseOrjsonModel):
 
 
 class APIFilmFull(APIFilm):
-    description: str
+    description: str | None = ""
     actors: list[APIPersonBase] | None = []
     writers: list[APIPersonBase] | None = []
     directors: list[APIPersonBase] | None = []

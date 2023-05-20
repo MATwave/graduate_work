@@ -9,7 +9,7 @@ class TextCommand(BaseConfig):
     welcome: str = 'Добро пожаловать в навык "Практикум". Чем я могу Вам помочь?'
     error: str = 'Извините я не знаю как Вам помочь. Попробуйте еще раз!'
     
-    film: PhraseModel = PhraseModel(trigger_phrase=('посоветуй фильм', ),
+    film: PhraseModel = PhraseModel(trigger_phrase=('посоветуй фильм', 'другой фильм', ),
                                     error_response='Я не смогла найти фильм для рекомендации')
     
     context_film_to_genre: PhraseModel = PhraseModel(trigger_phrase=('жанр у этого фильма', 'жанр у фильма',),

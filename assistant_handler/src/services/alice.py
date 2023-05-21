@@ -1,4 +1,6 @@
+import os
 import random
+import sys
 from functools import lru_cache
 from urllib.parse import urljoin, urlencode
 
@@ -6,10 +8,12 @@ import aiohttp
 from core.config import settings
 from core.voice_command.comand import text_commands
 from fastapi import status, HTTPException
+
 from loguru import logger
+from models.alice.request import AliceRequestModel
+from models.alice.response import AliceResponse, AliceResponseModel
+
 from models.film import FilmModel
-from models.voice_model.alice.request import AliceRequestModel
-from models.voice_model.alice.response import AliceResponse, AliceResponseModel
 
 
 class AliceService:
@@ -74,7 +78,7 @@ class AliceService:
         if genre:
             search_film_params["page[number]"] = random.randint(1, 3)
 
-        endpoint = urljoin(settings.base_url+'search', f"?{urlencode(search_film_params)}")
+        endpoint = urljoin(settings.base_url + 'search', f"?{urlencode(search_film_params)}")
 
         response_status, films = await self._get_data_from_http(url=endpoint)
         if response_status == status.HTTP_200_OK:
@@ -125,7 +129,7 @@ class AliceService:
         # Реакция на просьбу получить информацию о жанре в текущем фильме
         if 'about_film_context_genre' in request.request.nlu.intents:
             logger.info('определили интент about_genre')
-            phrase = ', '.join(film_data.get('genre',text_commands.context_film_to_genre.error_response))
+            phrase = ', '.join(film_data.get('genre', text_commands.context_film_to_genre.error_response))
 
         # Реакция на просьбу получить информацию об описании фильма
         if 'about_film_context_description' in request.request.nlu.intents:

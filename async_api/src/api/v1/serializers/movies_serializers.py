@@ -2,7 +2,7 @@ from uuid import UUID
 
 import orjson
 from models.base import orjson_dumps
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 
 
 class BaseOrjsonModel(BaseModel):
@@ -40,11 +40,16 @@ class APIFilm(BaseOrjsonModel):
 
 
 class APIFilmFull(APIFilm):
-    description: str | None = ""
+    description: str | None
     actors: list[APIPersonBase] | None = []
     writers: list[APIPersonBase] | None = []
     directors: list[APIPersonBase] | None = []
 
+    @validator('description', pre=True, always=True)
+    def check_empty_decription(cls, description):
+        if description:
+            return description
+        return 'Описание отсутствует'
 
 class APIPersonFilms(BaseOrjsonModel):
     role: str

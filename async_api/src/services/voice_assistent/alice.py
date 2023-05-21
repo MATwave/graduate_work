@@ -119,13 +119,13 @@ class AliceService:
     async def _context_answer_to_questions(self, request: AliceRequestModel) -> tuple[str, dict]:
 
         phrase: str = text_commands.error
-        new_state = request.state['session']
+        new_state = request.state['session']['get_film']
         film_data = request.state['session']['get_film'].get('film_data')
 
         # Реакция на просьбу получить информацию о жанре в текущем фильме
         if 'about_film_context_genre' in request.request.nlu.intents:
             logger.info('определили интент about_genre')
-            phrase = ', '.join(film_data.get('genre'), text_commands.context_film_to_genre.error_response)
+            phrase = ', '.join(film_data.get('genre',text_commands.context_film_to_genre.error_response))
 
         # Реакция на просьбу получить информацию об описании фильма
         if 'about_film_context_description' in request.request.nlu.intents:

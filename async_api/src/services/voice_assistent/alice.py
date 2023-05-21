@@ -23,7 +23,7 @@ class AliceService:
         if alice_request_model.session.new:
             logger.info('определили новую сессию')
             response.set_text(text_commands.welcome)
-            response.set_buttons(text_commands.end)
+            response.set_buttons(text_commands.end[0])
             return response.dumps()
 
         elif 'exit' in alice_request_model.request.nlu.intents:
@@ -38,6 +38,7 @@ class AliceService:
             text, state = await self._recommendation_film(state=dict())
             response.set_text(text)
             response.set_state(state_dict={'get_film': state})
+            response.set_buttons(text_commands.end[0])
             return response.dumps()
 
         elif any(intent.startswith("about_film_context") for intent in alice_request_model.request.nlu.intents):
@@ -45,14 +46,14 @@ class AliceService:
             get_film_state = alice_request_model.state['session']['get_film'].get('film_data')
             text = await self._context_answer_to_questions(state=get_film_state, request=alice_request_model)
             response.set_text(text)
-            response.set_buttons(text_commands.bye)
             response.set_state(state_dict={'get_film': alice_request_model.state['session']})
+            response.set_buttons(text_commands.end[0])
             return response.dumps()
 
         else:
             logger.info('не поняли команды')
             response.set_text(text_commands.error)
-            response.set_buttons(text_commands.end)
+            response.set_buttons(text_commands.end[0])
             return response.dumps()
 
     async def _get_data_from_http(self, **kwargs):

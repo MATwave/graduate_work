@@ -9,16 +9,19 @@ from urllib.parse import urljoin, urlencode
 from core.voice_command.comand import text_commands
 import aiohttp
 import json
+import logging
 
 
 from models.voice_model.marusya.request import MarusyaRequestModel
 from models.voice_model.marusya.response import MarusyaResponseModel, ResponseMarusya, Session
 from services.voice_assistent.base import Assistant
 
+logger = logging.getLogger()
+
 
 class MarusayService(Assistant):
 
-    async def get_data_assistant(self, requestMarusya: MarusyaRequestModel, request: Request) -> MarusyaResponseModel:
+    async def get_data_assistant(self, requestMarusya: MarusyaRequestModel) -> MarusyaResponseModel:
         """Основной метод для ызаимодействия с голосовым ассистенотм."""
 
         session_id = requestMarusya.session.session_id
@@ -32,7 +35,7 @@ class MarusayService(Assistant):
             try:
                 state = json.loads(last_state.replace("\'", "\""))
             except Exception as e:
-                print(f'Exception as {e}')
+                logger.exception(f'Exception decode data from redis as {e}')
                 state = {}
 
         resp = MarusyaResponseModel(
@@ -55,17 +58,14 @@ class MarusayService(Assistant):
         if requestMarusya.session.new:
             resp.response.text = text_commands.welcome 
 
-
         # Реакция на просьбу показать фильм
         if self._check_command(requestMarusya.request.command, text_commands.film.trigger_phrase):
-
-            resp.response.text = await self._recommendation_film(session_id=session_id, request=request)
+            resp.response.text = await self._recommendation_film(session_id=session_id)
             return dict(resp)
 
         # Ответ на вопросы по найденному фильму.
         if state:
             resp.response.text = await self._context_answer_to_questions(command=requestMarusya.request.command,
-                                                                         request=request,
                                                                          session_id=session_id,
                                                                          state=state)
             return dict(resp)
@@ -80,16 +80,14 @@ class MarusayService(Assistant):
                 return True
         return False
 
-
     async def _get_data_from_http(self, **kwargs):
         """Асинзронный клинет для поиска информации по API"""
         async with aiohttp.ClientSession() as session:
             async with session.get(**kwargs) as response:
                 result = await response.json()
                 return result
-
         
-    async def _get_random_films(self, request: Request) -> dict:
+    async def _get_random_films(self) -> dict:
         """Поиск случайного фильма."""
         random_film = random.randint(1, 100)
         
@@ -100,17 +98,17 @@ class MarusayService(Assistant):
                 }
 
         film_id = ''
-        search_url = f'{request.base_url}api/v1/films/search'
+        search_url = f'{settings.base_url}search'
 
         films = await self._get_data_from_http(url=search_url, params=search_film_params)
+        logger.info(films)
 
         film_id = films[0].get('id')
-        film_information_url = f'{request.base_url}api/v1/films/{film_id}'
+        film_information_url = f'{settings.base_url}{film_id}'
         
         return await self._find_full_film_information(url=film_information_url)
-    
 
-    async def _get_films_by_genre(self, request: Request, genre: list) -> dict:
+    async def _get_films_by_genre(self, genre: list) -> dict:
         """Поиск фильма по одному из жанров"""
         id_genre_for_recommendation = random.randint(0, len(genre) - 1)
         random_film = random.randint(1, 3)
@@ -122,24 +120,26 @@ class MarusayService(Assistant):
                     "genre": genre[id_genre_for_recommendation]
                 }
         film_id = ''
-        search_url = f'{request.base_url}api/v1/films'
+        search_url = settings.base_url
 
         film = await self._get_data_from_http(url=search_url, params=search_film_params)
+        logger.info(film)
         film_id = film[0].get('id')
 
-        film_information_url = f'{request.base_url}api/v1/films/{film_id}'
+        film_information_url = f'{settings.base_url}{film_id}'
         return await self._find_full_film_information(url=film_information_url)
 
     async def _find_full_film_information(self, url: str) -> dict:
         """Получение полноой информации о фильме"""
         full_film_information = await self._get_data_from_http(url=url)
+        logger.info(full_film_information)
         return full_film_information
 
-    async def _recommendation_film(self, session_id: str, request: Request) -> str:
+    async def _recommendation_film(self, session_id: str) -> str:
         """Поиск случайного фильма для рекомендации пользователю."""
         try:
-            data_from_es = await self._get_random_films(request=request)
-            print(data_from_es)
+            data_from_es = await self._get_random_films()
+            logger.info(data_from_es)
             msg = data_from_es.get('title')
             await redis.redis.set( session_id, str(data_from_es), settings.cache_expires)
         except Exception:   
@@ -148,7 +148,6 @@ class MarusayService(Assistant):
     
     async def _context_answer_to_questions(self,
                                            state: dict, command: MarusyaRequestModel,
-                                           request: Request,
                                            session_id: str)->str:
         """Ответы пользователю в случае если он заходет узнать 
         доп. информацию по рекомендованном фильме"""
@@ -174,8 +173,7 @@ class MarusayService(Assistant):
         if self._check_command(command, text_commands.context_genre.trigger_phrase):
             if state.get('genre'):
                 try:
-                    data_from_es = await self._get_films_by_genre(request=request,
-                                                            genre=state.get('genre'))
+                    data_from_es = await self._get_films_by_genre(genre=state.get('genre'))
                     phrase = data_from_es.get('title')
                     await redis.redis.set(session_id, str(data_from_es), settings.cache_expires)
                 except Exception:   

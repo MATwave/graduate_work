@@ -13,9 +13,10 @@ import json
 
 from models.voice_model.marusya.request import MarusyaRequestModel
 from models.voice_model.marusya.response import MarusyaResponseModel, ResponseMarusya, Session
+from services.voice_assistent.base import Assistant
 
 
-class MarusayService:
+class MarusayService(Assistant):
 
     async def get_data_assistant(self, requestMarusya: MarusyaRequestModel, request: Request) -> MarusyaResponseModel:
         """Основной метод для ызаимодействия с голосовым ассистенотм."""
@@ -25,13 +26,13 @@ class MarusayService:
         message_id = requestMarusya.session.message_id
         state: dict = {}
         last_state = await redis.redis.get(session_id)
-
         # Получаем последние данные которые запрашивали.
         # Тк данные хранятся на русском делаем манипуляции для преобразования его в JSON 
         if last_state:
             try:
-                state = json.loads(last_state.decode('utf8').replace("\'", "\""))
-            except:
+                state = json.loads(last_state.replace("\'", "\""))
+            except Exception as e:
+                print(f'Exception as {e}')
                 state = {}
 
         resp = MarusyaResponseModel(
@@ -57,6 +58,7 @@ class MarusayService:
 
         # Реакция на просьбу показать фильм
         if self._check_command(requestMarusya.request.command, text_commands.film.trigger_phrase):
+
             resp.response.text = await self._recommendation_film(session_id=session_id, request=request)
             return dict(resp)
 
@@ -119,7 +121,6 @@ class MarusayService:
                     "sort": "-imdb_rating",
                     "genre": genre[id_genre_for_recommendation]
                 }
-        print('aaaaa', search_film_params)
         film_id = ''
         search_url = f'{request.base_url}api/v1/films'
 
@@ -140,7 +141,7 @@ class MarusayService:
             data_from_es = await self._get_random_films(request=request)
             print(data_from_es)
             msg = data_from_es.get('title')
-            await redis.redis.setex(session_id, settings.cache_expires, str(data_from_es))
+            await redis.redis.set( session_id, str(data_from_es), settings.cache_expires)
         except Exception:   
             msg = text_commands.film.error_response
         return msg
@@ -176,7 +177,7 @@ class MarusayService:
                     data_from_es = await self._get_films_by_genre(request=request,
                                                             genre=state.get('genre'))
                     phrase = data_from_es.get('title')
-                    await redis.redis.setex(session_id, settings.cache_expires, str(data_from_es))
+                    await redis.redis.set(session_id, str(data_from_es), settings.cache_expires)
                 except Exception:   
                     phrase = text_commands.context_genre.error_response
         return phrase

@@ -6,6 +6,8 @@ from elasticsearch import AsyncElasticsearch
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi_limiter import FastAPILimiter
+
 
 tags_metadata = [
     {
@@ -49,8 +51,8 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup():
-    redis.redis = await aioredis.from_url(f"redis://{settings.redis_host}:{settings.redis_port}")
-
+    redis.redis = await aioredis.from_url(f"redis://{settings.redis_host}:{settings.redis_port}", decode_responses=True)
+    await FastAPILimiter.init(redis.redis)
     elastic.es = AsyncElasticsearch(
         hosts=[f"{settings.elastic_host}:{settings.elastic_port}"]
     )

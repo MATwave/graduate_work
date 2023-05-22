@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import ORJSONResponse
 from fastapi_limiter import FastAPILimiter
 
-from api.v1 import alice_assistant, marusya_assistant
+from api.v1 import assistants
 from core.config import settings
 from db import redis
 
@@ -50,5 +50,4 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(marusya_assistant.router, prefix="/api/v1/assistants/mausya", tags=["mausya"])
-app.include_router(alice_assistant.router, prefix="/api/v1/assistants", tags=["alice"])
+app.include_router(assistants.router, prefix="/api/v1/assistants", tags=["assistants"])

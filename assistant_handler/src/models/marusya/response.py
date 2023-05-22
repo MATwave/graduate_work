@@ -16,7 +16,9 @@ class Session(BaseModel):
     user_id: str
     message_id: int 
 
+
 class MarusyaResponseModel(BaseModel):
     response: ResponseMarusya
     session: Session
+    session_state: dict = {}
     version: str = '1.0'

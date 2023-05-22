@@ -45,9 +45,14 @@ class Request(BaseModel):
     markup: Markup | None
     type: str
 
+class State(BaseModel):
+    session: dict | None = {}
+    user: dict| None = {}
+
 
 class MarusyaRequestModel(BaseModel):
     meta: Meta
     session: Session
     request: Request
+    state: State
     version: str

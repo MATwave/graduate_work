@@ -68,4 +68,3 @@ class FilmTransformer:
             return film_work.dict()
         except ValueError as e:
             logger.error(e)
-

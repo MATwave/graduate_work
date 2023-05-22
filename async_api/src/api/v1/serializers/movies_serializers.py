@@ -51,6 +51,7 @@ class APIFilmFull(APIFilm):
             return description
         return 'Описание отсутствует'
 
+
 class APIPersonFilms(BaseOrjsonModel):
     role: str
     films: list[APIFilm]

@@ -1,4 +1,5 @@
 from typing import Dict, List
+
 from pydantic import BaseModel
 
 
@@ -31,7 +32,7 @@ class Session(BaseModel):
 class NLU(BaseModel):
     tokens: List[str]
     entities: List[dict] | None
-    intents: Dict[str, dict] | None 
+    intents: Dict[str, dict] | None
 
 
 class Markup(BaseModel):
@@ -45,9 +46,10 @@ class Request(BaseModel):
     markup: Markup | None
     type: str
 
+
 class State(BaseModel):
     session: dict | None = {}
-    user: dict| None = {}
+    user: dict | None = {}
 
 
 class MarusyaRequestModel(BaseModel):

@@ -1,9 +1,8 @@
 from typing import List
 from uuid import UUID
 
-from pydantic import BaseModel
 from loguru import logger
-
+from pydantic import BaseModel
 
 
 class Films(BaseModel):

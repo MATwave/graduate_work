@@ -49,7 +49,8 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup():
-    redis.redis = await aioredis.from_url(f"redis://{settings.redis_host}:{settings.redis_port}", decode_responses=True)
+    redis.redis = await aioredis.from_url(f"redis://{settings.redis_host}:{settings.redis_port}",
+                                          decode_responses=True)
     await FastAPILimiter.init(redis.redis)
     elastic.es = AsyncElasticsearch(
         hosts=[f"{settings.elastic_host}:{settings.elastic_port}"]

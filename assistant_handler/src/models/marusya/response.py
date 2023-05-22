@@ -6,15 +6,16 @@ class Buttons(BaseModel):
     url: str | None
     payload: dict | None
 
+
 class ResponseMarusya(BaseModel):
     text: str
     end_session: bool = False
 
 
 class Session(BaseModel):
-    session_id: str 
+    session_id: str
     user_id: str
-    message_id: int 
+    message_id: int
 
 
 class MarusyaResponseModel(BaseModel):

@@ -1,5 +1,7 @@
 from typing import Dict, List, Any
+
 from pydantic import BaseModel
+
 
 class Meta(BaseModel):
     locale: str
@@ -7,11 +9,14 @@ class Meta(BaseModel):
     client_id: str
     interfaces: Dict[str, Any]
 
+
 class User(BaseModel):
     user_id: str
 
+
 class Application(BaseModel):
     application_id: str
+
 
 class Session(BaseModel):
     message_id: int
@@ -22,21 +27,26 @@ class Session(BaseModel):
     user_id: str
     new: bool
 
+
 class Slots(BaseModel):
     type: str
     tokens: Dict[str, int]
     value: str
 
+
 class Intents(BaseModel):
     slots: Dict[str, Slots]
+
 
 class NLU(BaseModel):
     tokens: List[str]
     entities: List[Any]
     intents: Dict[str, Intents]
 
+
 class Markup(BaseModel):
     dangerous_context: bool
+
 
 class Request(BaseModel):
     command: str
@@ -44,6 +54,7 @@ class Request(BaseModel):
     nlu: NLU
     markup: Markup
     type: str
+
 
 class AliceRequestModel(BaseModel):
     meta: Meta

@@ -4,7 +4,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from services.film import FilmService, get_film_service
 
-from .dependencies import FILM_DETAILS_MESSAGE, NON_SUB_MESSAGE, FilmFilterParams, FilmQueryParams
+from .dependencies import FILM_DETAILS_MESSAGE, FilmFilterParams, FilmQueryParams
 from .serializers.movies_serializers import APIFilm, APIFilmFull
 
 router = APIRouter()

@@ -1,6 +1,4 @@
-import os
 import random
-import sys
 from functools import lru_cache
 from urllib.parse import urljoin, urlencode
 
@@ -8,15 +6,14 @@ import aiohttp
 from core.config import settings
 from core.voice_command.comand import text_commands
 from fastapi import status, HTTPException
-
 from loguru import logger
 from models.alice.request import AliceRequestModel
 from models.alice.response import AliceResponse, AliceResponseModel
-
 from models.film import FilmModel
 from services.base import Assistant
 
-logger.add("warning.log", level="WARNING",rotation="500 MB")
+logger.add("warning.log", level="WARNING", rotation="500 MB")
+
 
 class AliceService(Assistant):
 
@@ -39,7 +36,7 @@ class AliceService(Assistant):
             response.set_buttons(text_commands.end[0])
             return response.dumps()
 
-        elif self._check_command('exit',alice_request_model.request.nlu.intents):
+        elif self._check_command('exit', alice_request_model.request.nlu.intents):
             logger.info('определили интент exit')
             response.set_text(text_commands.bye)
             response.end()

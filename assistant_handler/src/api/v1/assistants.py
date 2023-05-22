@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends
 from fastapi_limiter.depends import RateLimiter
-from models.alice.request import AliceRequestModel
-from models.alice.response import AliceResponseModel
-from models.marusya.request import MarusyaRequestModel
-from models.marusya.response import MarusyaResponseModel
-from services.alice import get_alice_service, AliceService
-from services.mausya import get_marusya_service, MarusayService
+from src.models.alice.request import AliceRequestModel
+from src.models.alice.response import AliceResponseModel
+from src.models.marusya.request import MarusyaRequestModel
+from src.models.marusya.response import MarusyaResponseModel
+from src.services.alice import get_alice_service, AliceService
+from src.services.mausya import get_marusya_service, MarusayService
 
 router = APIRouter()
 

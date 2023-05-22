@@ -4,9 +4,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import ORJSONResponse
 from fastapi_limiter import FastAPILimiter
 
-from api.v1 import assistants
-from core.config import settings
-from db import redis
+from src.api.v1 import assistants
+from src.core.config import settings
+from src.db import redis
 
 origins = ["*"]
 

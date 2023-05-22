@@ -3,11 +3,11 @@ import random
 from functools import lru_cache
 
 import aiohttp
-from core.config import settings
-from core.voice_command.comand import text_commands
-from models.marusya.request import MarusyaRequestModel
-from models.marusya.response import MarusyaResponseModel, ResponseMarusya, Session
-from services.base import Assistant
+from src.core.config import settings
+from src.core.voice_command.comand import text_commands
+from src.models.marusya.request import MarusyaRequestModel
+from src.models.marusya.response import MarusyaResponseModel, ResponseMarusya, Session
+from src.services.base import Assistant
 
 logger = logging.getLogger()
 

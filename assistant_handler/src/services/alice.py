@@ -3,14 +3,14 @@ from functools import lru_cache
 from urllib.parse import urljoin, urlencode
 
 import aiohttp
-from core.config import settings
-from core.voice_command.comand import text_commands
 from fastapi import status, HTTPException
 from loguru import logger
-from models.alice.request import AliceRequestModel
-from models.alice.response import AliceResponse, AliceResponseModel
-from models.film import FilmModel
-from services.base import Assistant
+from src.core.config import settings
+from src.core.voice_command.comand import text_commands
+from src.models.alice.request import AliceRequestModel
+from src.models.alice.response import AliceResponse, AliceResponseModel
+from src.models.film import FilmModel
+from src.services.base import Assistant
 
 logger.add("warning.log", level="WARNING", rotation="500 MB")
 

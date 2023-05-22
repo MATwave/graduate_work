@@ -5,7 +5,7 @@ FROM python:3.10.5 AS base
 WORKDIR /app
 
 # Копируем зависимости проекта (pyproject.toml и poetry.lock) внутрь контейнера
-COPY pyproject.toml poetry.lock ./
+COPY src/pyproject.toml src/poetry.lock ./
 
 # Обновляем pip и устанавливаем poetry
 RUN pip install --upgrade pip --no-cache-dir && \
@@ -30,4 +30,4 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
 # Устанавливаем команду запуска контейнера
-CMD ["gunicorn", "main:app", "--workers", "4", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8081"]
+CMD ["gunicorn", "src.main:app", "--workers", "4", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8081"]

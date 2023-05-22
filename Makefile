@@ -100,6 +100,11 @@ assistants_down:
 	@echo "Stopping assistant containers"
 	docker-compose -f $(ASSISTANT_COMPOSE_FILE) down -v
 
+assistants_tests_run:
+	@echo "Running assistant tests"
+	docker exec -i assistant_handler bash -c "pytest --disable-warnings ."
+
+
 #-------------------------------
 
 all_down:

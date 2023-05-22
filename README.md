@@ -121,8 +121,11 @@ __Сценарий__: по запросу пользователя голосо�
     ```makefile
     make assistents_down
     ```
-- тесты:
-    - 
+  
+- тесты
+    ```makefile
+    make assistents_tests_run
+    ```
 
 </details>
 

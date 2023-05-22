@@ -3,7 +3,7 @@ version: "3.9"
 services:
 
   assistant_handler:
-    build: src/
+    build: .
     container_name: assistant_handler
     env_file:
       - ../.env

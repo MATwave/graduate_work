@@ -11,7 +11,7 @@ class Assistant(ABC):
         ...
     # Метод валидации команд от ассистента
     @abstractmethod
-    def _check_command(text_request: str, command: tuple):
+    def _check_command(text_request: str, command: tuple | dict):
         ...
     # Метод получения случайного фильма. 
     # В методе реализуется генерация случайного фильма
@@ -19,11 +19,7 @@ class Assistant(ABC):
     async def _get_random_films(self) -> dict:
         ...
     # Метод поулчения фильма по жанру
-    @abstractmethod
-    async def _get_films_by_genre(self, genre: list) -> dict:
-        ...
-    # Метод поулчения полной информации по фильму для реализации конекста и 
-    # сообщения доп информации по запросу от ассистента
+
     @abstractmethod
     async def _find_full_film_information(self, url: str) -> dict:
         ...

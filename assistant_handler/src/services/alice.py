@@ -14,9 +14,18 @@ from models.alice.request import AliceRequestModel
 from models.alice.response import AliceResponse, AliceResponseModel
 
 from models.film import FilmModel
+from services.base import Assistant
 
+logger.add("warning.log", level="WARNING",rotation="500 MB")
 
-class AliceService:
+class AliceService(Assistant):
+
+    @staticmethod
+    def _check_command(text_request: str, command: dict) -> bool:
+        """Метод для проверки запроса от ассистента со списом фразх на которы он должен реагировать."""
+        if any(intent.startswith(text_request) for intent in command):
+            return True
+        return False
 
     async def get_data_assistant(self, alice_request_model: AliceRequestModel) -> AliceResponseModel:
         """Основной метод для взаимодействия с голосовым ассистентом."""
@@ -30,14 +39,14 @@ class AliceService:
             response.set_buttons(text_commands.end[0])
             return response.dumps()
 
-        elif 'exit' in alice_request_model.request.nlu.intents:
+        elif self._check_command('exit',alice_request_model.request.nlu.intents):
             logger.info('определили интент exit')
             response.set_text(text_commands.bye)
             response.end()
             return response.dumps()
 
         # Реакция на просьбу показать фильм
-        elif 'get_film' in alice_request_model.request.nlu.intents:
+        elif self._check_command('get_film', alice_request_model.request.nlu.intents):
             logger.info('определили интент get_film')
             text, state = await self._recommendation_film(state=dict())
             response.set_text(text)
@@ -45,9 +54,8 @@ class AliceService:
             response.set_buttons(text_commands.end[0])
             return response.dumps()
 
-        elif any(intent.startswith("about_film_context") for intent in alice_request_model.request.nlu.intents):
+        elif self._check_command('about_film_context', alice_request_model.request.nlu.intents):
             logger.info('определили интент about_film_context')
-
             text, new_state = await self._context_answer_to_questions(request=alice_request_model)
             response.set_text(text)
             response.set_state(state_dict={'get_film': new_state})
@@ -55,7 +63,7 @@ class AliceService:
             return response.dumps()
 
         else:
-            logger.info('не поняли команды')
+            logger.warning(f'не поняли команды {alice_request_model.request.command}')
             response.set_text(text_commands.error)
             response.set_buttons(text_commands.end[0])
             return response.dumps()
@@ -123,21 +131,27 @@ class AliceService:
     async def _context_answer_to_questions(self, request: AliceRequestModel) -> tuple[str, dict]:
 
         phrase: str = text_commands.error
-        new_state = request.state['session']['get_film']
+        try:
+            new_state = request.state['session']['get_film']
+        except KeyError:
+            new_state = request.state['session']
+            phrase = text_commands.context_error
+            return phrase, new_state
+
         film_data = request.state['session']['get_film'].get('film_data')
 
         # Реакция на просьбу получить информацию о жанре в текущем фильме
-        if 'about_film_context_genre' in request.request.nlu.intents:
+        if self._check_command('about_film_context_genre', request.request.nlu.intents):
             logger.info('определили интент about_genre')
             phrase = ', '.join(film_data.get('genre', text_commands.context_film_to_genre.error_response))
 
         # Реакция на просьбу получить информацию об описании фильма
-        if 'about_film_context_description' in request.request.nlu.intents:
+        if self._check_command('about_film_context_description', request.request.nlu.intents):
             logger.info('определили интент about_description')
             phrase = film_data.get('description', text_commands.context_film_to_decription.error_response)
 
         # Реакция на просьбу получить информацию об актерах в фильме
-        if 'about_film_context_actor' in request.request.nlu.intents:
+        if self._check_command('about_film_context_actor', request.request.nlu.intents):
             logger.info('определили интент about_actors')
             if film_data.get('actors'):
                 phrase = ', '.join([c.get('name') for c in film_data.get('actors')])
@@ -145,7 +159,7 @@ class AliceService:
                 phrase = text_commands.context_film_to_actors.error_response
 
         # Реакция на просьбу получить рекомендацию по фильму в таком же жанре
-        if 'about_film_context_same_genre_film' in request.request.nlu.intents:
+        if self._check_command('about_film_context_same_genre_film', request.request.nlu.intents):
             logger.info('определили интент about_same_genre_film')
             if film_data.get('genre'):
                 try:

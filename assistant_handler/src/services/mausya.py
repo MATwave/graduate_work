@@ -18,7 +18,6 @@ from services.base import Assistant
 
 logger = logging.getLogger()
 
-
 class MarusayService(Assistant):
 
     async def get_data_assistant(self, requestMarusya: MarusyaRequestModel) -> MarusyaResponseModel:
@@ -28,15 +27,13 @@ class MarusayService(Assistant):
         user_id = requestMarusya.session.user_id
         message_id = requestMarusya.session.message_id
         state: dict = {}
-        last_state = await redis.redis.get(session_id)
-        # Получаем последние данные которые запрашивали.
-        # Тк данные хранятся на русском делаем манипуляции для преобразования его в JSON 
-        if last_state:
-            try:
-                state = json.loads(last_state.replace("\'", "\""))
-            except Exception as e:
-                logger.exception(f'Exception decode data from redis as {e}')
-                state = {}
+
+
+        try:
+            state: dict = requestMarusya.state.session
+        except Exception as e:
+            logger.exception(f'Exception get data from state as {e}')
+            state: dict = {}
 
         resp = MarusyaResponseModel(
                     response=ResponseMarusya(
@@ -45,7 +42,8 @@ class MarusayService(Assistant):
                         session_id=session_id,
                         user_id=user_id,
                         message_id=message_id
-                        )
+                        ),
+                        session_state=state
                     )
         
         # Реакция на корректное завершение работы Маруси
@@ -60,16 +58,16 @@ class MarusayService(Assistant):
 
         # Реакция на просьбу показать фильм
         if self._check_command(requestMarusya.request.command, text_commands.film.trigger_phrase):
-            resp.response.text = await self._recommendation_film(session_id=session_id)
+            resp.response.text, resp.session_state = await self._recommendation_film(session_id=session_id)
+            print(resp)
             return dict(resp)
 
         # Ответ на вопросы по найденному фильму.
         if state:
-            resp.response.text = await self._context_answer_to_questions(command=requestMarusya.request.command,
+            resp.response.text, resp.session_state = await self._context_answer_to_questions(command=requestMarusya.request.command,
                                                                          session_id=session_id,
                                                                          state=state)
             return dict(resp)
-
         return dict(resp)
 
     @staticmethod
@@ -137,14 +135,15 @@ class MarusayService(Assistant):
 
     async def _recommendation_film(self, session_id: str) -> str:
         """Поиск случайного фильма для рекомендации пользователю."""
+        state = {}
         try:
             data_from_es = await self._get_random_films()
+            state = data_from_es
             logger.info(data_from_es)
             msg = data_from_es.get('title')
-            await redis.redis.set( session_id, str(data_from_es), settings.cache_expires)
         except Exception:   
             msg = text_commands.film.error_response
-        return msg
+        return msg, state
     
     async def _context_answer_to_questions(self,
                                            state: dict, command: MarusyaRequestModel,
@@ -174,11 +173,11 @@ class MarusayService(Assistant):
             if state.get('genre'):
                 try:
                     data_from_es = await self._get_films_by_genre(genre=state.get('genre'))
+                    state = data_from_es
                     phrase = data_from_es.get('title')
-                    await redis.redis.set(session_id, str(data_from_es), settings.cache_expires)
                 except Exception:   
                     phrase = text_commands.context_genre.error_response
-        return phrase
+        return phrase, state
 
 @lru_cache()
 def get_marusya_service() -> MarusayService:

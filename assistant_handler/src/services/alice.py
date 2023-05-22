@@ -126,7 +126,6 @@ class AliceService(Assistant):
         return msg, new_state
 
     async def _context_answer_to_questions(self, request: AliceRequestModel) -> tuple[str, dict]:
-
         phrase: str = text_commands.error
         try:
             new_state = request.state['session']['get_film']
@@ -140,36 +139,49 @@ class AliceService(Assistant):
         # Реакция на просьбу получить информацию о жанре в текущем фильме
         if self._check_command('about_film_context_genre', request.request.nlu.intents):
             logger.info('определили интент about_genre')
-            phrase = ', '.join(film_data.get('genre', text_commands.context_film_to_genre.error_response))
+            phrase = self._get_genre_response(film_data)
 
         # Реакция на просьбу получить информацию об описании фильма
         if self._check_command('about_film_context_description', request.request.nlu.intents):
             logger.info('определили интент about_description')
-            phrase = film_data.get('description', text_commands.context_film_to_decription.error_response)
+            phrase = self._get_description_response(film_data)
 
         # Реакция на просьбу получить информацию об актерах в фильме
         if self._check_command('about_film_context_actor', request.request.nlu.intents):
             logger.info('определили интент about_actors')
-            if film_data.get('actors'):
-                phrase = ', '.join([c.get('name') for c in film_data.get('actors')])
-            else:
-                phrase = text_commands.context_film_to_actors.error_response
+            phrase = self._get_actors_response(film_data)
 
         # Реакция на просьбу получить рекомендацию по фильму в таком же жанре
         if self._check_command('about_film_context_same_genre_film', request.request.nlu.intents):
             logger.info('определили интент about_same_genre_film')
-            if film_data.get('genre'):
-                try:
-                    data_from_es, new_state = await self._get_random_films(genre=film_data.get('genre'))
-
-                    phrase = data_from_es.title
-                except Exception as e:
-                    logger.warning(e)
-                    phrase = text_commands.context_genre.error_response
-            else:
-                phrase = text_commands.context_film_to_genre.error_response
+            phrase = await self._get_same_genre_film_response(film_data)
 
         return phrase, new_state
+
+    def _get_genre_response(self, film_data) -> str:
+        phrase = ', '.join(film_data.get('genre', text_commands.context_film_to_genre.error_response))
+        return phrase
+
+    def _get_description_response(self, film_data) -> str:
+        phrase = film_data.get('description', text_commands.context_film_to_decription.error_response)
+        return phrase
+
+    def _get_actors_response(self, film_data) -> str:
+        actors = film_data.get('actors')
+        if actors:
+            return ', '.join(actor.get('name') for actor in actors)
+        return text_commands.context_film_to_actors.error_response
+
+    async def _get_same_genre_film_response(self, film_data) -> str:
+        genre = film_data.get('genre')
+        if genre:
+            try:
+                data_from_es, new_state = await self._get_random_films(genre=genre)
+                return data_from_es.title
+            except Exception as e:
+                logger.warning(e)
+                return text_commands.context_genre.error_response
+        return text_commands.context_film_to_genre.error_response
 
 
 @lru_cache()

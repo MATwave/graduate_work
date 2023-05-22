@@ -3,6 +3,7 @@ ADMIN_PANEL_DOCKER_COMPOSE_FILE = -f admin_panel/docker-compose.yml
 ASYNC_API_COMPOSE_FILE = async_api/docker-compose.yml
 ASYNC_API_TEST_COMPOSE_FILE = async_api/tests/functional/docker-compose.yml
 ETL_COMPOSE_FILE = ETL/docker-compose.yml
+ASSISTANT_COMPOSE_FILE = assistant_handler/docker-compose.yml
 # Запуск контейнеров Docker и выполнение необходимых команд внутри контейнера
 admin_panel_up:
 	cp .env.template .env
@@ -87,13 +88,29 @@ etl_down:
 
 #-------------------------------
 
+assistants_up:
+	@echo "Copying .env.template to .env"
+	cp .env.template .env
+	@echo "creating external network if it doesn't exists..."
+	if [ -z "$$(docker network ls -q -f name=es_external_network)" ]; then docker network create es_external_network; fi
+	@echo "Starting assistant containers"
+	docker-compose -f $(ASSISTANT_COMPOSE_FILE) up -d --build
+
+assistants_down:
+	@echo "Stopping assistant containers"
+	docker-compose -f $(ASSISTANT_COMPOSE_FILE) down -v
+
+#-------------------------------
+
 all_down:
 	make admin_panel_down
 	make async_api_down
 	make etl_down
+	make assistants_down
 
 all_up:
 	make admin_panel_up
 	make admin_panel_fill_db
 	make async_api_up
 	make etl_up
+	make assistants_up

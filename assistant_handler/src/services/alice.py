@@ -129,12 +129,13 @@ class AliceService(Assistant):
         phrase: str = text_commands.error
         try:
             new_state = request.state['session']['get_film']
+            film_data = request.state['session']['get_film']['film_data']
         except KeyError:
             new_state = request.state['session']
             phrase = text_commands.context_error
             return phrase, new_state
 
-        film_data = request.state['session']['get_film'].get('film_data')
+
 
         # Реакция на просьбу получить информацию о жанре в текущем фильме
         if self._check_command('about_film_context_genre', request.request.nlu.intents):

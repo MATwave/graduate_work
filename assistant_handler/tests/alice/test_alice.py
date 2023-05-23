@@ -5,7 +5,9 @@ from tests.alice.request_examples import (hello,
                                           bye,
                                           about_film_description,
                                           about_film_actors,
-                                          get_same_genre_film)
+                                          get_same_genre_film,
+                                          misunderstanding,
+                                          miss_context)
 
 
 @pytest.mark.parametrize(
@@ -15,6 +17,8 @@ from tests.alice.request_examples import (hello,
         (bye.bye_request, bye.bye_response),
         (about_film_description.description_request, about_film_description.description_response),
         (about_film_actors.actors_request, about_film_actors.actors_response),
+        (misunderstanding.misunderstanding_request, misunderstanding.misunderstanding_response),
+        (miss_context.miss_context_request, miss_context.miss_context_response)
     ]
 )
 def test_get_data_assistant(test_client, request_data, expected_response):

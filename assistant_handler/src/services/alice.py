@@ -155,7 +155,7 @@ class AliceService(Assistant):
         # Реакция на просьбу получить рекомендацию по фильму в таком же жанре
         if self._check_command('about_film_context_same_genre_film', request.request.nlu.intents):
             logger.info('определили интент about_same_genre_film')
-            phrase = await self._get_same_genre_film_response(film_data)
+            phrase, new_state = await self._get_same_genre_film_response(film_data)
 
         return phrase, new_state
 
@@ -178,7 +178,7 @@ class AliceService(Assistant):
         if genre:
             try:
                 data_from_es, new_state = await self._get_random_films(genre=genre)
-                return data_from_es.title
+                return data_from_es.title, new_state
             except Exception as e:
                 logger.warning(e)
                 return text_commands.context_genre.error_response

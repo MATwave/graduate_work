@@ -79,7 +79,7 @@ class MarusayService(Assistant):
                 result = await response.json()
                 return result
 
-    async def _get_random_films(self) -> dict:
+    async def _get_films(self) -> dict:
         """Поиск случайного фильма."""
         random_film = random.randint(1, 100)
 
@@ -131,7 +131,7 @@ class MarusayService(Assistant):
         """Поиск случайного фильма для рекомендации пользователю."""
         state = {}
         try:
-            data_from_es = await self._get_random_films()
+            data_from_es = await self._get_films()
             state = data_from_es
             logger.info(data_from_es)
             msg = data_from_es.get('title')

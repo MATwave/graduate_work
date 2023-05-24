@@ -19,14 +19,9 @@ app = FastAPI(
     default_response_class=ORJSONResponse,
     openapi_tags=[
         {
-            "name": "mausya",
-            "description": "Эндпоинт обработки запросов от голосового помощника Маруси",
+            "name": "assistants",
+            "description": "Эндпоинты обработки запросов от голосовых помощников",
         },
-        {
-            "name": "alice",
-            "description": "Эндпоинт обработки запросов от голосового помощника Алисы",
-        },
-
     ],
 )
 

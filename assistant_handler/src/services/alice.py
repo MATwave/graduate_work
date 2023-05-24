@@ -51,6 +51,14 @@ class AliceService(Assistant):
             response.set_buttons(text_commands.end[0])
             return response.dumps()
 
+        elif self._check_command('film_search', alice_request_model.request.nlu.intents):
+            logger.info('определили интент film_search')
+            text, state = await self._find_film(request=alice_request_model.request.nlu.intents["film_search"].slots)
+            response.set_text(text)
+            response.set_state(state_dict={'get_film': state})
+            response.set_buttons(text_commands.end[0])
+            return response.dumps()
+
         elif self._check_command('about_film_context', alice_request_model.request.nlu.intents):
             logger.info('определили интент about_film_context')
             text, new_state = await self._context_answer_to_questions(request=alice_request_model)
@@ -72,16 +80,18 @@ class AliceService(Assistant):
                 result = await response.json()
                 return response.status, result
 
-    async def _get_random_films(self, genre: list = None) -> tuple[FilmModel, dict]:
+    async def _get_films(self, genre: list = None, title: str = None) -> tuple[FilmModel, dict]:
         """Поиск случайного фильма."""
 
         search_film_params = {
             "page[size]": 1,
-            "page[number]": random.randint(1, 100),
+            "page[number]": random.randint(1, 100) if title is None else 1,
             "sort": "-imdb_rating",
         }
         if genre:
             search_film_params["page[number]"] = random.randint(1, 3)
+        elif title:
+            search_film_params["query"] = title
 
         endpoint = urljoin(settings.base_url + 'search', f"?{urlencode(search_film_params)}")
 
@@ -100,6 +110,7 @@ class AliceService(Assistant):
 
         return full_film_data, search_film_params
 
+
     async def _find_full_film_information(self, url: str) -> dict:
         """Получение полноой информации о фильме"""
         response_status, full_film_information = await self._get_data_from_http(url=url)
@@ -114,7 +125,7 @@ class AliceService(Assistant):
     async def _recommendation_film(self, state: dict) -> tuple[str, dict]:
         """Поиск случайного фильма для рекомендации пользователю."""
         try:
-            data_from_es, new_state = await self._get_random_films()
+            data_from_es, new_state = await self._get_films()
             logger.info('выбрали фильм')
             msg = data_from_es.title
 
@@ -122,6 +133,20 @@ class AliceService(Assistant):
             logger.warning(e)
             msg = text_commands.film.error_response
             new_state = state
+
+        return msg, new_state
+
+    async def _find_film(self, request: AliceRequestModel) -> tuple[str, dict]:
+        title = request['Film'].value
+        try:
+            data_from_es, new_state = await self._get_films(title=title)
+            logger.info('нашли фильм')
+            msg = data_from_es.title
+
+        except Exception as e:
+            logger.warning(e)
+            msg = text_commands.film.error_response
+            new_state = dict()
 
         return msg, new_state
 
@@ -177,7 +202,7 @@ class AliceService(Assistant):
         genre = film_data.get('genre')
         if genre:
             try:
-                data_from_es, new_state = await self._get_random_films(genre=genre)
+                data_from_es, new_state = await self._get_films(genre=genre)
                 return data_from_es.title, new_state
             except Exception as e:
                 logger.warning(e)

@@ -18,7 +18,7 @@ class Assistant(ABC):
     # Метод получения случайного фильма.
     # В методе реализуется генерация случайного фильма
     @abstractmethod
-    async def _get_random_films(self) -> dict:
+    async def _get_films(self) -> dict:
         ...
 
     # Метод получения фильма по жанру

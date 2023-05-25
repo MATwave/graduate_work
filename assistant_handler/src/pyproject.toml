@@ -2,7 +2,7 @@
 name = "src"
 version = "0.1.0"
 description = ""
-authors = ["MATwave <stanislav.matveew@yandex.ru>"]
+authors = ["MATwave <stanislav.matveew@yandex.ru>", "AnswerKAS <kaluzhin.anton@yandex.ru>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]

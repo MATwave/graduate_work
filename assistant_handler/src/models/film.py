@@ -1,10 +1,9 @@
 from uuid import UUID
 
 from src.models.base import BaseOrjsonModel
-from pydantic import BaseModel
 
 
-class Person(BaseModel):
+class Person(BaseOrjsonModel):
     id: UUID
     name: str
 
@@ -21,6 +20,6 @@ class FilmModel(BaseOrjsonModel):
     writers: list[Person] | None = []
 
 
-class RoleAndFilmsModel(BaseModel):
+class RoleAndFilmsModel(BaseOrjsonModel):
     role: str
     films: list[FilmModel]

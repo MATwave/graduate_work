@@ -1,4 +1,3 @@
-from typing import List
 from uuid import UUID
 
 from loguru import logger
@@ -7,7 +6,7 @@ from pydantic import BaseModel
 
 class Films(BaseModel):
     role: str
-    film_ids: List[UUID]
+    film_ids: list[UUID]
 
 
 class Person(BaseModel):

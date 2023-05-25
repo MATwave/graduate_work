@@ -1,4 +1,4 @@
-from typing import Dict, List, Any
+from typing import Any
 
 from pydantic import BaseModel
 
@@ -7,7 +7,7 @@ class Meta(BaseModel):
     locale: str
     timezone: str
     client_id: str
-    interfaces: Dict[str, Any]
+    interfaces: dict[str, Any]
 
 
 class User(BaseModel):
@@ -30,18 +30,18 @@ class Session(BaseModel):
 
 class Slots(BaseModel):
     type: str
-    tokens: Dict[str, int]
+    tokens: dict[str, int]
     value: str
 
 
 class Intents(BaseModel):
-    slots: Dict[str, Slots]
+    slots: dict[str, Slots]
 
 
 class NLU(BaseModel):
-    tokens: List[str]
-    entities: List[Any]
-    intents: Dict[str, Intents]
+    tokens: list[str]
+    entities: list[Any]
+    intents: dict[str, Intents]
 
 
 class Markup(BaseModel):
@@ -61,4 +61,4 @@ class AliceRequestModel(BaseModel):
     session: Session
     request: Request
     version: str
-    state: Dict[str, Any]
+    state: dict[str, Any]

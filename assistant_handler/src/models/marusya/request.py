@@ -1,5 +1,3 @@
-from typing import Dict, List
-
 from pydantic import BaseModel
 
 
@@ -7,7 +5,7 @@ class Meta(BaseModel):
     locale: str
     timezone: str
     client_id: str
-    interfaces: Dict[str, dict]
+    interfaces: dict[str, dict]
 
 
 class User(BaseModel):
@@ -30,9 +28,9 @@ class Session(BaseModel):
 
 
 class NLU(BaseModel):
-    tokens: List[str]
-    entities: List[dict] | None
-    intents: Dict[str, dict] | None
+    tokens: list[str]
+    entities: list[dict] | None
+    intents: dict[str, dict] | None
 
 
 class Markup(BaseModel):

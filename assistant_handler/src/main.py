@@ -1,21 +1,36 @@
+from contextlib import asynccontextmanager
+
 import aioredis
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import ORJSONResponse
 from fastapi_limiter import FastAPILimiter
-
 from src.api.v1 import assistants
 from src.core.config import settings
 from src.db import redis
 
 origins = ["*"]
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    redis.redis = await aioredis.from_url(f"redis://{settings.redis_host}:{settings.redis_port}",
+                                          decode_responses=True)
+    await FastAPILimiter.init(redis.redis)
+
+    try:
+        yield
+    finally:
+        await redis.redis.close()
+
+
 app = FastAPI(
+    lifespan=lifespan,
     title=settings.project_name,
     description="Эндпоинты для обработки запросов от голосовых помощников",
-    docs_url="/api/openapi",
-    redoc_url="/api/redoc",
-    openapi_url="/api/openapi.json",
+    docs_url="/assistants/openapi",
+    redoc_url="/assistants/redoc",
+    openapi_url="/assistants/openapi.json",
     default_response_class=ORJSONResponse,
     openapi_tags=[
         {
@@ -25,19 +40,6 @@ app = FastAPI(
     ],
 )
 
-
-@app.on_event("startup")
-async def startup():
-    redis.redis = await aioredis.from_url(f"redis://{settings.redis_host}:{settings.redis_port}",
-                                          decode_responses=True)
-    await FastAPILimiter.init(redis.redis)
-
-
-@app.on_event("shutdown")
-async def shutdown():
-    await redis.redis.close()
-
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -46,4 +48,4 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(assistants.router, prefix="/api/v1/assistants", tags=["assistants"])
+app.include_router(assistants.router, prefix="/assistants", tags=["assistants"])

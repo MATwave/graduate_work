@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Optional
 
 
 @dataclass
@@ -9,10 +8,10 @@ class FilmWork:
     type: str
     created: str
     modified: str
-    creation_date: Optional[str] = None
-    file_path: Optional[str] = None
-    description: Optional[str] = None
-    rating: Optional[float] = None
+    creation_date: str | None = None
+    file_path: str | None = None
+    description: str | None = None
+    rating: float | None = None
 
 
 @dataclass
@@ -21,7 +20,7 @@ class Genre:
     name: str
     created: str
     modified: str
-    description: Optional[str] = None
+    description: str | None = None
 
 
 @dataclass

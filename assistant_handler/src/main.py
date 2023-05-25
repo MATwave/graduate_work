@@ -13,9 +13,9 @@ origins = ["*"]
 app = FastAPI(
     title=settings.project_name,
     description="Эндпоинты для обработки запросов от голосовых помощников",
-    docs_url="/api/openapi",
-    redoc_url="/api/redoc",
-    openapi_url="/api/openapi.json",
+    docs_url="/assistants/openapi",
+    redoc_url="/assistants/redoc",
+    openapi_url="/assistants/openapi.json",
     default_response_class=ORJSONResponse,
     openapi_tags=[
         {
@@ -46,4 +46,4 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(assistants.router, prefix="/api/v1/assistants", tags=["assistants"])
+app.include_router(assistants.router, prefix="/assistants", tags=["assistants"])

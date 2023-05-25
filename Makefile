@@ -119,3 +119,4 @@ all_up:
 	make async_api_up
 	make etl_up
 	make assistants_up
+	make assistants_tests_run

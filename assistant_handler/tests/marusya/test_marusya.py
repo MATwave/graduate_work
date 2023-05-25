@@ -20,7 +20,7 @@ from tests.marusya.request_examples import (hello,
     ]
 )
 def test_get_data_assistant(test_client, request_data, expected_response):
-    response = test_client.post("api/v1/assistants/marusya", json=request_data)
+    response = test_client.post("assistants/marusya", json=request_data)
     assert response.status_code == 200
     assert response.json() == expected_response
 
@@ -33,7 +33,7 @@ def test_get_data_assistant(test_client, request_data, expected_response):
     ]
 )
 def test_get_film(test_client, request_data):
-    response = test_client.post("api/v1/assistants/marusya", json=request_data)
+    response = test_client.post("assistants/marusya", json=request_data)
     assert response.status_code == 200
     assert response.headers["Content-Type"] == "application/json"
     # так как ответ каждый раз разный - проверим валидацию модели ответа

@@ -91,13 +91,6 @@ class AliceService(Assistant):
         response.set_buttons(text_commands.end[0])
         return response.dumps()
 
-    async def _get_data_from_http(self, **kwargs):
-        """Асинзронный клинет для поиска информации по API"""
-        async with aiohttp.ClientSession() as session:
-            async with session.get(**kwargs) as response:
-                result = await response.json()
-                return response.status, result
-
     async def _get_films(self, genre: list = None, title: str = None) -> tuple[FilmModel, dict]:
         """Поиск случайного фильма."""
 
